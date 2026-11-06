@@ -19,6 +19,3 @@ __pycache__/
 .idea/
 .DS_Store
 Thumbs.db
-
-# Archives de rendu
-*.zip
