@@ -5,8 +5,16 @@ Tous les scripts se lancent **depuis la racine du projet**, les chemins sont rel
 
 ## Prérequis
 
-- Python 3.12, pandas 2.x, SQLAlchemy 2 + psycopg, Streamlit (étape 7)
+- Python 3.11+, pandas 2.x ou 3.x, SQLAlchemy 2 + psycopg, Streamlit (étape 7)
 - PostgreSQL 14 ou supérieur
+
+## Environnement virtuel
+
+```
+python -m venv .venv
+.venv\Scripts\activate        
+pip install pandas
+```
 
 ## Variables d'environnement (aucun secret en dur)
 
