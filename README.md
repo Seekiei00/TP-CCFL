@@ -13,7 +13,7 @@ Tous les scripts se lancent **depuis la racine du projet**, les chemins sont rel
 ```
 python -m venv .venv
 .venv\Scripts\activate        
-pip install pandas
+pip install -r requirements.txt
 ```
 
 ## Variables d'environnement (aucun secret en dur)
