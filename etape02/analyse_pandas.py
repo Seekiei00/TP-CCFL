@@ -6,6 +6,8 @@ CHEMIN_MATERIEL = "data/materiel.csv"
 CHEMIN_ASSOCIATIONS = "data/associations.csv"
 CHEMIN_RESERVATIONS = "data/reservations.csv"
 
+CHEMIN_TOP10 = "sorties/top10_materiel.csv"
+
 ENCODAGE = "utf-8"
 
 
@@ -70,3 +72,65 @@ df_materiel["valeur_achat"] = pd.to_numeric(
 
 print("\nType apres conversion :", df_materiel["valeur_achat"].dtype)
 print("Valeurs manquantes apres conversion :", df_materiel["valeur_achat"].isna().sum())
+
+
+# --- Les 10 materiels les plus chers ---
+
+top10_chers = df_materiel.sort_values("valeur_achat", ascending=False).head(10)
+
+print("\n=== Les 10 materiels les plus chers ===")
+print(top10_chers[["reference", "designation", "categorie", "valeur_achat"]].to_string(index=False))
+
+
+# --- Nombre de materiels par categorie ---
+
+materiels_par_categorie = df_materiel["categorie"].value_counts()
+
+print("\n=== Nombre de materiels par categorie ===")
+print(materiels_par_categorie.to_string())
+
+
+# --- Reservations et quantite par pole, en un seul groupby ---
+
+par_site = df_reservations.groupby("code_site").agg(
+    nb_reservations=("id_reservation", "size"),
+    quantite_totale=("quantite", "sum"),
+).sort_values("nb_reservations", ascending=False)
+
+print("\n=== Reservations et quantite par pole ===")
+print(par_site.to_string())
+
+
+# --- Fusion des trois tables ---
+
+# materiel.csv contient des lignes en double : sans drop_duplicates la fusion
+# dupliquerait les reservations correspondantes.
+df_materiel_unique = df_materiel.drop_duplicates()
+
+print("\n=== Fusion ===")
+print("Lignes de df_materiel :", len(df_materiel))
+print("Lignes de df_materiel sans doublon :", len(df_materiel_unique))
+
+df_complet = df_reservations.merge(df_materiel_unique, on="id_materiel", how="left")
+df_complet = df_complet.merge(df_associations, on="id_association", how="left")
+
+print("Lignes de df_reservations :", len(df_reservations))
+print("Lignes de df_complet :", len(df_complet))
+print("Lignes sans materiel correspondant :", df_complet["designation"].isna().sum())
+
+
+# --- Top 10 des materiels les plus reserves ---
+
+top10_reserves = (
+    df_complet.groupby(["id_materiel", "designation"])
+    .size()
+    .reset_index(name="nb_reservations")
+    .sort_values("nb_reservations", ascending=False)
+    .head(10)
+)
+
+print("\n=== Top 10 des materiels les plus reserves ===")
+print(top10_reserves.to_string(index=False))
+
+top10_reserves.to_csv(CHEMIN_TOP10, index=False, encoding=ENCODAGE)
+print("\nExporte dans", CHEMIN_TOP10)
